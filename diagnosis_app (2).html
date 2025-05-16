@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>将来の恋人診断 (改訂版)</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 20px;
+      margin: 0;
+      background-color: #f0f2f5;
+      color: #333;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background-color: #fff;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 25px;
+      text-align: center;
+      color: #007bff;
+    }
+    form > div {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #555;
+    }
+    input[type="date"],
+    select {
+      width: 100%;
+      font-size: 16px;
+      padding: 12px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      transition: border-color 0.2s;
+    }
+    input[type="date"]:focus,
+    select:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+    button.submit {
+      width: 100%;
+      background: linear-gradient(to right, #007bff, #0056b3);
+      color: #fff;
+      font-size: 18px;
+      padding: 14px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: background 0.3s;
+    }
+    button.submit:hover {
+      background: linear-gradient(to right, #0056b3, #003d80);
+    }
+    button.submit:active {
+      transform: translateY(1px);
+    }
+    #result {
+      display: none;
+      margin-top: 35px;
+      background: #f9f9f9;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+    }
+    #result h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #007bff;
+    }
+    .section {
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 1px dashed #ddd;
+    }
+    .section:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .section p {
+      font-size: 16px;
+      margin: 6px 0;
+    }
+    .section p strong {
+      color: #333;
+    }
+    .percent-box {
+      width: 150px;
+      height: 150px;
+      margin: 10px auto 20px;
+      position: relative;
+      background-color: #e9ecef;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+    }
+    .percent-box::before {
+      content: attr(data-percent) "%";
+      position: absolute;
+      font-size: 36px;
+      font-weight: bold;
+      color: #007bff;
+    }
+    .bar-bg {
+      width: 100%;
+      height: 22px;
+      border-radius: 11px;
+      margin-top: 10px;
+      background-color: #e9ecef;
+      overflow: hidden;
+    }
+    .bar-fill {
+      background-color: #007bff;
+      height: 100%;
+      width: 0%;
+      border-radius: 11px;
+      transition: width 0.8s ease-in-out;
+      text-align: center;
+      line-height: 22px;
+      color: white;
+      font-size: 12px;
+    }
+    .buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .buttons button {
+      flex: 1;
+      font-size: 17px;
+      padding: 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .buttons button:hover {
+      opacity: 0.85;
+    }
+    .buttons .retry {
+      background-color: #6c757d;
+      color: #fff;
+    }
+    .buttons .note {
+      background-color: #17a2b8;
+      color: #fff;
+    }
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* レスポンシブ対応 */
+      gap: 12px;
+      margin: 25px 0;
+    }
+    .image-grid img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 8px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+      transition: transform 0.2s;
+    }
+    .image-grid img:hover {
+        transform: scale(1.05);
+    }
+    #adviceList {
+        list-style-type: none;
+        padding-left: 0;
+    }
+    #adviceList li {
+        background-color: #e9f7fd;
+        padding: 10px 15px;
+        margin-bottom: 8px;
+        border-radius: 5px;
+        border-left: 4px solid #007bff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>将来の恋人診断 (改訂版)</h1>
+    <form id="form">
+      <div><label for="birthdate">生年月日</label><input type="date" id="birthdate" name="birthdate" required></div>
+
+      <div><label for="q1">Q1. 旅行や外出の計画は？</label>
+        <select id="q1" name="q1" required>
+          <option value="" disabled selected>選択してください</option>
+          <option value="2">細かくスケジュールを立てる</option>
+          <option value="1">大まかな計画だけ立てる</option>
+          <option value="0">行き当たりばったりで動く</option>
+        </select>
+      </div>
+
+      <div><label for="q2">Q2. 大きな買い物の判断方法は？</label>
+        <select id="q2" name="q2" required>
+          <option value="" disabled selected>選択してください</option>
+          <option value="2">徹底的にリサーチしてから決める</option>
+          <option value="1">専門家や周囲の意見を聞いて判断する</option>
+          <option value="0">直感で気に入ったものを優先する</option>
+        </select>
+      </div>
+
+      <div><label for="q3">Q3. 目標設定の頻度は？</label>
+        <select id="q3" name="q3" required>
+          <option value="" disabled selected>選択してください</option>
+          <option value="2">毎月・毎四半期ごとに見直す</option>
+          <option value="1">年に一度、大きな目標を設定する</option>
+          <option value="0">期限を決めずに取り組む</option>
+        </select>
+      </div>
+
+      <div><label for="q4">Q4. 急なトラブルが起きたときの行動は？</label>
+        <select id="q4" name="q4" required>
+          <option value="" disabled selected>選択してください</option>
+          <option value="2">すぐに代替案を考えて行動を切り替える</option>
+          <option value="1">まず周囲に相談してから動く</option>
+          <option value="0">一度落ち着いて状況を整理してから対処する</option>
+        </select>
+      </div>
+
+      <div><label for="q5">Q5. 締め切り間近で進捗が遅れているとき、どうする？</label>
+        <select id="q5" name="q5" required>
+          <option value="" disabled selected>選択してください</option>
+          <option value="2">締め切り優先で徹夜も辞さず取り組む</option>
+          <option value="1">優先順位を見直して後回しにする</option>
+          <option value="0">家族や同僚に協力を求める</option>
+        </select>
+      </div>
+
+      <div><label for="q6">Q6. 計画が大きく狂ったときの感情は？</label>
+        <select id="q6" name="q6" required>
+          <option value="" disabled selected>選択してください</option>
+          <option value="2">焦ってすぐ対策を打つ</option>
+          <option value="1">一旦落ち込みつつも切り替えられる</option>
+          <option value="0">まず誰かに話を聞いてもらう</option>
+        </select>
+      </div>
+
+      <div><label for="q7">Q7. グループでの決定時、あなたは？</label>
+        <select id="q7" name="q7" required>
+          <option value="" disabled selected>選択してください</option>
+          <option value="2">自分の意見をはっきり主張する</option>
+          <option value="1">全体の意見をまとめる役をする</option>
+          <option value="0">流れに合わせて動く</option>
+        </select>
+      </div>
+
+      <div><label for="q8">Q8. 意見が食い違ったとき、あなたは？</label>
+        <select id="q8" name="q8" required>
+          <option value="" disabled selected>選択してください</option>
+          <option value="2">論理的に反論し自分の意見を通す</option>
+          <option value="1">相手の話をじっくり聞いて歩み寄る</option>
+          <option value="0">一度持ち帰ってから話し合う</option>
+        </select>
+      </div>
+
+      <div><label for="q9">Q9. お願いごとをするとき、どの方法？</label>
+        <select id="q9" name="q9" required>
+          <option value="" disabled selected>選択してください</option>
+          <option value="2">メールやLINEで要点を整理して送る</option>
+          <option value="1">直接会って口頭で頼む</option>
+          <option value="0">共通の知人を介して伝えてもらう</option>
+        </select>
+      </div>
+
+      <div><label for="q10">Q10. 休日の過ごし方（詳細版）は？</label>
+        <select id="q10" name="q10" required>
+          <option value="" disabled selected>選択してください</option>
+          <option value="2">朝早く起きて予定を詰め込む</option>
+          <option value="1">ゆっくり寝坊して家で過ごす</option>
+          <option value="0">友人を誘って外でアクティブに過ごす</option>
+        </select>
+      </div>
+
+      <div><label for="q11">Q11. お金の使い方は？</label>
+        <select id="q11" name="q11" required>
+          <option value="" disabled selected>選択してください</option>
+          <option value="2">毎月予算を決めて管理する</option>
+          <option value="1">必要なとき以外はあまり使わない</option>
+          <option value="0">気に入ったものには惜しみなく投資する</option>
+        </select>
+      </div>
+
+      <div><label for="q12">Q12. 健康管理・運動習慣は？</label>
+        <select id="q12" name="q12" required>
+          <option value="" disabled selected>選択してください</option>
+          <option value="2">週に数回ジムやスポーツをする</option>
+          <option value="1">時々ウォーキングする</option>
+          <option value="0">あまり意識せず生活習慣で賄う</option>
+        </select>
+      </div>
+
+      <div><label for="q13">Q13. 結婚・ライフプランの考え方は？</label>
+        <select id="q13" name="q13" required>
+          <option value="" disabled selected>選択してください</option>
+          <option value="2">ライフプランを細かく立ててから動く</option>
+          <option value="1">そのときの状況で柔軟に決める</option>
+          <option value="0">あまり具体的には考えていない</option>
+        </select>
+      </div>
+
+      <div><label for="q14">Q14. 子ども・家族との関わり方は？</label>
+        <select id="q14" name="q14" required>
+          <option value="" disabled selected>選択してください</option>
+          <option value="2">一緒に過ごす時間を多く取りたい</option>
+          <option value="1">自立した関係を保ちたい</option>
+          <option value="0">状況や相手次第で合わせる</option>
+        </select>
+      </div>
+
+      <div><label for="q15">Q15. 新しいことへの挑戦姿勢は？</label>
+        <select id="q15" name="q15" required>
+          <option value="" disabled selected>選択してください</option>
+          <option value="2">積極的に挑む</option>
+          <option value="1">興味はあるが慎重に検討する</option>
+          <option value="0">あまり好まず安定を優先する</option>
+        </select>
+      </div>
+
+      <button type="submit" class="submit">診断する</button>
+    </form>
+
+    <div id="result">
+      <h2>診断結果</h2>
+      <div class="section">
+        <p><strong>あなたの星座：</strong><span id="zodiac"></span>座</p>
+        <p><strong>あなたの干支：</strong><span id="animal"></span>年</p>
+      </div>
+      <div class="section">
+        <p><strong>合致度</strong></p>
+        <div class="percent-box" id="percentBox" data-percent="0"></div>
+        <div class="bar-bg"><div class="bar-fill" id="barFill">0%</div></div>
+      </div>
+      <div class="section">
+        <p><strong>おすすめ相手タイプ：</strong><span id="partnerType" style="font-weight:bold; color:#007bff;"></span></p>
+      </div>
+      <p style="text-align:center; font-weight:bold; margin-bottom:10px;">イメージ</p>
+      <div class="image-grid"></div>
+      <div class="section">
+        <p><strong>理由</strong></p>
+        <p id="partnerReason"></p>
+      </div>
+      <div class="section" id="adviceSection">
+        <p><strong>具体的な進展アドバイス</strong></p>
+        <ul id="adviceList"></ul>
+      </div>
+      <div class="buttons">
+        <button class="retry" id="retryBtn">もう一度診断する</button>
+        <button class="note" id="noteBtn">詳細情報を見る (note.com)</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 星座の定義 (月, 日の範囲)
+    const ZODIAC_SIGNS = [
+      { name: "山羊", start: [12, 22], end: [1, 19] }, { name: "水瓶", start: [1, 20], end: [2, 18] },
+      { name: "魚", start: [2, 19], end: [3, 20] }, { name: "牡羊", start: [3, 21], end: [4, 19] },
+      { name: "牡牛", start: [4, 20], end: [5, 20] }, { name: "双子", start: [5, 21], end: [6, 21] },
+      { name: "蟹", start: [6, 22], end: [7, 22] }, { name: "獅子", start: [7, 23], end: [8, 22] },
+      { name: "乙女", start: [8, 23], end: [9, 22] }, { name: "天秤", start: [9, 23], end: [10, 23] },
+      { name: "蠍", start: [10, 24], end: [11, 22] }, { name: "射手", start: [11, 23], end: [12, 21] }
+    ];
+    // 干支の定義
+    const CHINESE_ZODIAC_ANIMALS = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
+
+    // 生年月日から星座を計算する関数
+    function calculateZodiacSign(month, day) {
+      for (const sign of ZODIAC_SIGNS) {
+        const [startMonth, startDay] = sign.start;
+        const [endMonth, endDay] = sign.end;
+        if ((month === startMonth && day >= startDay) || (month === endMonth && day <= endDay) ||
+            (startMonth < endMonth && month > startMonth && month < endMonth) ||
+            (startMonth > endMonth && (month > startMonth || month < endMonth))) {
+          return sign.name;
+        }
+      }
+      return "不明"; // 通常は到達しない
+    }
+
+    // 生年から干支を計算する関数 (1900年基準)
+    function calculateChineseZodiac(year) {
+      if (year < 1900) return "不明"; // 簡単なバリデーション
+      return CHINESE_ZODIAC_ANIMALS[(year - 4 + 1200) % 12]; // 1900年が子年ではないので調整 (1900年は庚子なので子年でOK。 (year-1900)%12 だと子=0なので、 (year-4)%12は元コードの通り。)
+    }
+
+    // 各質問の重み設定 (全ての質問の重みを均等にする場合は調整不要)
+    const QUESTION_WEIGHTS = {};
+    for (let i = 1; i <= 15; i++) {
+      QUESTION_WEIGHTS["q" + i] = 1.2; // 各質問の重み
+    }
+
+    // フォーム送信時の処理
+    document.getElementById('form').addEventListener('submit', function(event) {
+      event.preventDefault(); // デフォルトのフォーム送信をキャンセル
+
+      const form = event.target;
+      const birthdateValue = form.birthdate.value;
+      if (!birthdateValue) {
+          alert("生年月日を入力してください。");
+          return;
+      }
+      const [year, month, day] = birthdateValue.split('-').map(Number);
+
+      // 星座と干支を計算・表示
+      const zodiacSign = calculateZodiacSign(month, day);
+      const chineseZodiac = calculateChineseZodiac(year);
+      document.getElementById('zodiac').textContent = zodiacSign;
+      document.getElementById('animal').textContent = chineseZodiac;
+
+      // 回答からスコアを計算
+      let totalWeightedScore = 0;
+      let maxWeightedScore = 0;
+      const breakdownDetails = {}; // 各回答の詳細を保存
+
+      Object.entries(QUESTION_WEIGHTS).forEach(([questionId, weight]) => {
+        const selectedOption = form[questionId].value;
+        if (selectedOption === "") {
+            // 未選択の質問がある場合は処理を中断（HTMLのrequiredで基本的には防がれる）
+            // この部分はHTMLのrequired属性でカバーされるため、実際には発動しにくい
+            return;
+        }
+        const value = Number(selectedOption);
+        breakdownDetails[questionId] = {
+          choice: form[questionId].selectedOptions[0].text,
+          score: value,
+          weightedScore: value * weight
+        };
+        totalWeightedScore += value * weight;
+        maxWeightedScore += 2 * weight; // 各質問の最大値は2点と仮定
+      });
+      
+      // 生年月日から得られる隠しスコア（例として追加。不要なら削除）
+      // const birthYearScore = (year % 10) / 5; // 0.0 - 1.8 の範囲
+      // totalWeightedScore += birthYearScore;
+      // maxWeightedScore += 2; // 最大値も調整
+
+      // 合致度を計算 (0-100%)
+      const matchPercentage = Math.floor((totalWeightedScore / maxWeightedScore) * 100);
+      if (isNaN(matchPercentage)) { // 稀に計算エラーが起こる場合へのフォールバック
+          matchPercentage = 0;
+      }
+
+
+      // 合致度を結果エリアに表示
+      const percentBox = document.getElementById('percentBox');
+      percentBox.setAttribute('data-percent', matchPercentage);
+      
+      const barFill = document.getElementById('barFill');
+      barFill.style.width = matchPercentage + '%';
+      barFill.textContent = matchPercentage + '%';
+
+
+      // おすすめ相手タイプを決定
+      let partnerTypeDescription;
+      if (matchPercentage >= 75) {
+        partnerTypeDescription = "情熱的で頼れるサポータータイプ";
+      } else if (matchPercentage >= 50) {
+        partnerTypeDescription = "穏やかで誠実な安らぎパートナー";
+      } else {
+        partnerTypeDescription = "冒険好きで刺激的なチャレンジャー";
+      }
+      document.getElementById('partnerType').textContent = partnerTypeDescription;
+
+      // 診断理由を表示
+      document.getElementById('partnerReason').textContent =
+        `${zodiacSign}座で${chineseZodiac}年生まれのあなた。各質問への回答傾向から総合的に判断し、「${partnerTypeDescription}」な方との相性が特に良いと診断されました。あなたの価値観や行動パターンにフィットし、互いに良い影響を与え合えるでしょう。`;
+
+      // 画像を表示 (プレースホルダー画像を使用)
+      const partnerImages = {
+        "情熱的で頼れるサポータータイプ": [
+          `https://i.imgur.com/SQnujtK.png`,
+          `https://i.imgur.com/oiqO7NQ.png`,
+          `https://i.imgur.com/oEbR7YL.png`,
+          `https://i.imgur.com/lGHyZum.png`
+        ],
+        "穏やかで誠実な安らぎパートナー": [
+          `https://i.imgur.com/bnvFcpb.png`,
+          `https://i.imgur.com/FPV4Lju.png`,
+          `https://i.imgur.com/15ic1X3.png`,
+          `https://i.imgur.com/BBFUt5H.png`
+        ],
+        "冒険好きで刺激的なチャレンジャー": [
+          `https://i.imgur.com/e26jODA.png`,
+          `https://i.imgur.com/yGzSnq0.png`,
+          `https://i.imgur.com/jFCArHL.png`,
+          `https://i.imgur.com/7suCdV6.png`
+        ]
+      };
+
+      const imageGrid = document.querySelector('.image-grid');
+      imageGrid.innerHTML = ''; // 既存の画像をクリア
+      const imagesToShow = partnerImages[partnerTypeDescription] || [];
+      imagesToShow.forEach(src => {
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = `${partnerTypeDescription} イメージ画像`;
+        imageGrid.appendChild(img);
+      });
+
+      // アドバイスを生成・表示
+      const advicePool = {
+        high: [ // 75%以上
+            "あなたの計画性や決断力は素晴らしいです。相手にもそれを共有し、次のステップを具体的に提案すると、より深い信頼関係が築けます。「次はこんな体験を一緒にどうかな？」とリードしてみましょう。",
+            "お互いの価値観を尊重し合える関係です。小さなことでも感謝の気持ちを伝え合うことで、さらに絆が深まります。相手の良いところを具体的に褒めてみましょう。",
+            "二人で新しい目標を立ててみるのがおすすめです。共通の趣味を深めたり、行ったことのない場所へ旅行の計画を立てたりするのも良いでしょう。",
+            "あなたの情熱やサポート力は相手にとって大きな魅力です。その気持ちをストレートに伝え、安心感を与えてあげてください。"
+        ],
+        mid: [ // 50%以上
+            "バランスの取れた関係性を築けそうです。相手の話をじっくり聞く時間を大切にし、共感する姿勢を見せることで、より心を開いてもらえます。「その話、もっと聞かせて」と関心を示しましょう。",
+            "お互いのペースを尊重しつつ、少しずつ新しいことに挑戦してみましょう。普段行かないようなレストランや、未体験のアクティビティに誘ってみるのも良い刺激になります。",
+            "安定感のある関係は心地よいですが、時にはサプライズを用意して相手を喜ばせるのも効果的です。小さなプレゼントや手料理など、心を込めた行動が鍵です。",
+            "コミュニケーションを大切に。日々の出来事や感じたことを素直に話し合うことで、お互いの理解が深まり、より穏やかな関係を育めます。"
+        ],
+        low: [ // 50%未満
+            "今はまだお互いを探り合っている段階かもしれません。まずは共通の話題を見つけることから始めましょう。相手の好きなことや趣味について質問し、興味を示すことが大切です。",
+            "焦らず、ゆっくりと関係を育むことを意識しましょう。短い時間でも良いので、定期的に会う機会を作ったり、メッセージのやり取りを続けたりすることが重要です。",
+            "相手にリラックスしてもらえるような、安心感のある雰囲気作りを心がけましょう。聞き上手になり、相手が話しやすい環境を提供することがポイントです。",
+            "小さな成功体験を積み重ねることが自信に繋がります。例えば、二人で簡単な料理を一緒に作ったり、近所の公園を散歩したりするなど、気軽なことから始めてみましょう。"
+        ]
+      };
+
+      function generateAdvice(percentage, breakdown, count = 2) {
+        const tier = percentage >= 75 ? 'high' : percentage >= 50 ? 'mid' : 'low';
+        let currentAdvicePool = [...advicePool[tier]]; // プールのコピーを作成
+        
+        // 回答内容に応じたアドバイスの絞り込み（例）
+        if (breakdown.q1 && breakdown.q1.score === 0) { // Q1が行き当たりばったりの場合
+            currentAdvicePool = currentAdvicePool.filter(advice => advice.includes("計画") || advice.includes("提案"));
+            if (currentAdvicePool.length === 0) currentAdvicePool = [...advicePool[tier]]; // フィルターで候補がなくなったら元に戻す
+        }
+
+        const selectedAdvices = [];
+        for (let i = 0; i < count && currentAdvicePool.length > 0; i++) {
+          const randomIndex = Math.floor(Math.random() * currentAdvicePool.length);
+          selectedAdvices.push(currentAdvicePool.splice(randomIndex, 1)[0]);
+        }
+        return selectedAdvices;
+      }
+
+      const adviceListElement = document.getElementById('adviceList');
+      adviceListElement.innerHTML = ''; // 既存のアドバイスをクリア
+      const advices = generateAdvice(matchPercentage, breakdownDetails, 2); // アドバイスを2つ表示
+      advices.forEach(adviceText => {
+        const listItem = document.createElement('li');
+        listItem.textContent = adviceText;
+        adviceListElement.appendChild(listItem);
+      });
+
+      // フォームを非表示にし、結果を表示
+      form.style.display = 'none';
+      document.getElementById('result').style.display = 'block';
+      // 結果表示時にページ上部にスクロール
+      window.scrollTo({ top: document.querySelector('.container').offsetTop - 20, behavior: 'smooth' });
+
+    });
+
+    // 「もう一度診断する」ボタンの処理
+    document.getElementById('retryBtn').addEventListener('click', () => {
+      document.getElementById('form').reset(); // フォームの内容をリセット
+      document.getElementById('form').style.display = 'block';
+      document.getElementById('result').style.display = 'none';
+      // ページ上部にスクロール
+       window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // 「noteで詳細を見る」ボタンの処理 (実際のnote記事URLに置き換えてください)
+    document.getElementById('noteBtn').addEventListener('click', () => {
+      window.open('https://note.com/', '_blank'); // ダミーURL。実際のページに置き換えてください。
+    });
+
+    // 初期表示時に各select要素にプレースホルダーのスタイルを適用するための小技
+    // (CSSでoption[value=""] { color: #999; } などで代替も可能)
+    document.querySelectorAll('select').forEach(select => {
+        if (select.value === "") {
+            select.style.color = '#777';
+        }
+        select.addEventListener('change', function() {
+            this.style.color = '#333';
+        });
+    });
+
+  </script>
+</body>
+</html>
